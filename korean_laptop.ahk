@@ -155,10 +155,14 @@ o::HandleMappedKey("N8", "o")
 p::HandleMappedKey("N9", "p")
 k::HandleMappedKey("N4", "k")
 l::HandleMappedKey("N5", "l")
-vkBA::HandleMappedKey("N6", "vkBA") ; oe/Ö key on German layout
+vkBA::HandleMappedKey("N6", "vkBA") ; oe/Ö fallback 1
+vkC0::HandleMappedKey("N6", "vkC0") ; oe/Ö fallback 2
+sc027::HandleMappedKey("N6", "sc027") ; physical key right of L on many DE layouts
 ,::HandleMappedKey("N1", ",")
 .::HandleMappedKey("N2", ".")
 -::HandleMappedKey("N3", "-")
+m::HandleMappedKey("N0", "m")
+AppsKey::HandleMappedKey("N0", "AppsKey")
 RAlt::HandleMappedKey("N0", "RAlt")
 Backspace::HandleBackspace()
 
@@ -236,7 +240,7 @@ SendMapped(keyId) {
 
 IsMappedContinuationKey(priorKey) {
     switch priorKey {
-        case "i", "o", "p", "k", "l", "vkBA", ",", ".", "-", "RAlt", "Backspace":
+        case "i", "o", "p", "k", "l", "vkBA", "vkC0", "sc027", ",", ".", "-", "m", "AppsKey", "RAlt", "Backspace":
             return true
         default:
             return false
