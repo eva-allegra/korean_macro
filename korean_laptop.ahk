@@ -239,12 +239,19 @@ SendMapped(keyId) {
 }
 
 IsMappedContinuationKey(priorKey) {
-    switch priorKey {
-        case "i", "o", "p", "k", "l", "vkBA", "vkC0", "sc027", ",", ".", "-", "m", "AppsKey", "RAlt", "Backspace":
+    prior := StrLower(priorKey)
+
+    switch prior {
+        case "i", "o", "p", "k", "l", "m", "appskey", "ralt", "backspace", ",", ".", "-", "comma", "period", "minus":
             return true
-        default:
-            return false
     }
+
+    ; Some layouts report combined virtual/scancode names like vkBAsc027.
+    if InStr(prior, "vkba") || InStr(prior, "vkc0") || InStr(prior, "sc027") {
+        return true
+    }
+
+    return false
 }
 
 SendWithComposition(char) {
@@ -373,15 +380,20 @@ ClearOutputTracking() {
 ~NumpadDiv::ClearOutputTracking()
 ~/::ClearOutputTracking()
 ~Tab::ClearOutputTracking()
-~,::ClearOutputTracking()
-~.::ClearOutputTracking()
 ~;::ClearOutputTracking()
 ~'::ClearOutputTracking()
-~-::ClearOutputTracking()
 ~NumpadDot::ClearOutputTracking()
 ~NumpadAdd::ClearOutputTracking()
 ~NumpadSub::ClearOutputTracking()
 ~NumpadMult::ClearOutputTracking()
+
+#HotIf isActive && !koreanMode
+
+~,::ClearOutputTracking()
+~.::ClearOutputTracking()
+~-::ClearOutputTracking()
+
+#HotIf
 
 RenderFromTokens() {
     global outputTokens, lastRendered
