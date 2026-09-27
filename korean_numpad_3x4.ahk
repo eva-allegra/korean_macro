@@ -138,22 +138,33 @@ F12:: {
 
 #HotIf isActive
 
-Numpad7::SendMapped("N7")
-Numpad8::SendMapped("N8")
-Numpad9::SendMapped("N9")
-Numpad4::SendMapped("N4")
-Numpad5::SendMapped("N5")
-Numpad6::SendMapped("N6")
-Numpad1::SendMapped("N1")
-Numpad2::SendMapped("N2")
-Numpad3::SendMapped("N3")
-Numpad0::SendMapped("N0")
+Numpad7::HandleNumpad("N7", "Numpad7")
+Numpad8::HandleNumpad("N8", "Numpad8")
+Numpad9::HandleNumpad("N9", "Numpad9")
+Numpad4::HandleNumpad("N4", "Numpad4")
+Numpad5::HandleNumpad("N5", "Numpad5")
+Numpad6::HandleNumpad("N6", "Numpad6")
+Numpad1::HandleNumpad("N1", "Numpad1")
+Numpad2::HandleNumpad("N2", "Numpad2")
+Numpad3::HandleNumpad("N3", "Numpad3")
+Numpad0::HandleNumpad("N0", "Numpad0")
 Backspace::HandleBackspace()
 
 #HotIf
 
+HandleNumpad(keyId, physKey) {
+    SendMapped(keyId)
+    ; Prevent key auto-repeat from generating duplicate symbols/syllables.
+    KeyWait physKey
+}
+
 SendMapped(keyId) {
     global keyMap, tapTimeoutMs, lastKey, lastTick, lastIndex, outputTokens
+
+    ; If user typed normal keys between mapped presses, drop stale composition context.
+    if (outputTokens.Length > 0) && !IsMappedContinuationKey(A_PriorKey) {
+        ClearOutputTracking()
+    }
 
     chars := keyMap[keyId]
     if chars.Length = 0 {
@@ -174,6 +185,15 @@ SendMapped(keyId) {
     SendWithComposition(chars[lastIndex])
     lastKey := keyId
     lastTick := now
+}
+
+IsMappedContinuationKey(priorKey) {
+    switch priorKey {
+        case "Numpad0", "Numpad1", "Numpad2", "Numpad3", "Numpad4", "Numpad5", "Numpad6", "Numpad7", "Numpad8", "Numpad9", "Backspace":
+            return true
+        default:
+            return false
+    }
 }
 
 SendWithComposition(char) {
@@ -302,6 +322,18 @@ ClearOutputTracking() {
 }
 
 ~Space::ClearOutputTracking()
+~NumpadDiv::ClearOutputTracking()
+~/::ClearOutputTracking()
+~Tab::ClearOutputTracking()
+~,::ClearOutputTracking()
+~.::ClearOutputTracking()
+~;::ClearOutputTracking()
+~'::ClearOutputTracking()
+~-::ClearOutputTracking()
+~NumpadDot::ClearOutputTracking()
+~NumpadAdd::ClearOutputTracking()
+~NumpadSub::ClearOutputTracking()
+~NumpadMult::ClearOutputTracking()
 
 RenderFromTokens() {
     global outputTokens, lastRendered
