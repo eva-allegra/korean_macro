@@ -155,9 +155,7 @@ o::HandleMappedKey("N8", "o")
 p::HandleMappedKey("N9", "p")
 k::HandleMappedKey("N4", "k")
 l::HandleMappedKey("N5", "l")
-vkBA::HandleMappedKey("N6", "vkBA") ; oe/Ö fallback 1
-vkC0::HandleMappedKey("N6", "vkC0") ; oe/Ö fallback 2
-sc027::HandleMappedKey("N6", "sc027") ; physical key right of L on many DE layouts
+sc027::HandleMappedKey("N6", "sc027") ; physical oe/Ö key on German layouts
 ,::HandleMappedKey("N1", ",")
 .::HandleMappedKey("N2", ".")
 -::HandleMappedKey("N3", "-")
@@ -210,12 +208,7 @@ RegisterArrowStep(step) {
 }
 
 SendMapped(keyId) {
-    global keyMap, tapTimeoutMs, lastKey, lastTick, lastIndex, outputTokens
-
-    ; If user typed normal keys between mapped presses, drop stale composition context.
-    if (outputTokens.Length > 0) && !IsMappedContinuationKey(A_PriorKey) {
-        ClearOutputTracking()
-    }
+    global keyMap, tapTimeoutMs, lastKey, lastTick, lastIndex
 
     chars := keyMap[keyId]
     if chars.Length = 0 {
@@ -236,22 +229,6 @@ SendMapped(keyId) {
     SendWithComposition(chars[lastIndex])
     lastKey := keyId
     lastTick := now
-}
-
-IsMappedContinuationKey(priorKey) {
-    prior := StrLower(priorKey)
-
-    switch prior {
-        case "i", "o", "p", "k", "l", "m", "appskey", "ralt", "backspace", ",", ".", "-", "comma", "period", "minus":
-            return true
-    }
-
-    ; Some layouts report combined virtual/scancode names like vkBAsc027.
-    if InStr(prior, "vkba") || InStr(prior, "vkc0") || InStr(prior, "sc027") {
-        return true
-    }
-
-    return false
 }
 
 SendWithComposition(char) {
@@ -392,6 +369,22 @@ ClearOutputTracking() {
 ~,::ClearOutputTracking()
 ~.::ClearOutputTracking()
 ~-::ClearOutputTracking()
+
+#HotIf
+
+#HotIf isActive && koreanMode
+
+; If top-row digits are used while Korean mode is on, end current compose context.
+~*0::ClearOutputTracking()
+~*1::ClearOutputTracking()
+~*2::ClearOutputTracking()
+~*3::ClearOutputTracking()
+~*4::ClearOutputTracking()
+~*5::ClearOutputTracking()
+~*6::ClearOutputTracking()
+~*7::ClearOutputTracking()
+~*8::ClearOutputTracking()
+~*9::ClearOutputTracking()
 
 #HotIf
 
